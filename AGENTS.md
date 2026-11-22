@@ -32,7 +32,7 @@ Estas orientações valem para todo o projeto **Diário de Treino**: o backend (
 
 ### Backend (`Backend/`)
 
-- Spring Boot 3.5, Java 17 (`java.version` do `pom.xml`), Maven (`mvn` instalado; não há wrapper). Banco: PostgreSQL em produção, H2 em memória nos testes e no desenvolvimento. API REST com JSON.
+- Spring Boot 3.5, Java 17 (`java.version` do `pom.xml`), MapStruct 1.6, JJWT 0.12, Maven (`mvn` instalado; não há wrapper). Banco: PostgreSQL em produção, H2 em memória nos testes e no desenvolvimento. API REST com JSON.
 - Compilar e testar:
 
 ```cmd
@@ -46,7 +46,7 @@ mvn test
 mvn test -Dtest="NomeDaClasse*Test" -Dsurefire.failIfNoSpecifiedTests=false
 ```
 
-- Subir a API em desenvolvimento (porta 8080, H2 em memória): `mvn spring-boot:run`. Documentação da API: `http://localhost:8080/swagger-ui.html`.
+- Subir a API em desenvolvimento (porta 8080, H2 em memória): `mvn spring-boot:run`. Documentação da API: `http://localhost:8080/swagger-ui.html`. Fora do perfil prod sobe a usuária de demonstração `mariana.rocha@exemplo.com.br` / `treino2026`, com treinos A–D e 12 semanas de histórico.
 - Postgres local opcional: `docker compose up -d` na pasta `Backend` e `mvn spring-boot:run -Dspring-boot.run.profiles=prod` com as variáveis `APP_DB_URL`, `APP_DB_USUARIO` e `APP_DB_SENHA`.
 - Arquitetura e convenções de pastas: **leia `Backend/ARQUITETURA.md` antes de criar um módulo**. Ela vale sobre este arquivo em caso de conflito.
 
@@ -90,10 +90,13 @@ npm test
 
 ### Estrutura e camadas
 
-- Siga `Backend/ARQUITETURA.md`: controller só valida (`@Valid`) e delega; regra de negócio no `<Modulo>ServicePadrao`, que implementa a interface `<Modulo>Service`; o controller depende da interface.
-- DTOs de entrada e saída são `record` com Bean Validation (`@NotBlank`, `@Positive`). Nunca exponha a entidade JPA na API.
+- Siga `Backend/ARQUITETURA.md` (mesmo padrão do backend Wezt): cada módulo em `core/<modulo>/` com `controllers/`, `services/` (interface `<Modulo>Service`) e `services/impl/` (`<Modulo>ServicePadrao`), `domains/dtos/`, `domains/mappers/` e `repositorys/`.
+- Controller só valida (`@Valid`) e delega; depende da interface do service. Regra de negócio no `ServicePadrao`.
+- DTOs são **classes** Lombok (`@Data @NoArgsConstructor @AllArgsConstructor`), nunca `record`: `<Nome>InDTO` para entrada e `<Nome>OutDTO` para saída. Controller nunca recebe nem devolve entidade.
+- Mappers MapStruct com `@Mapper(config = MapperConfigPadrao.class)` estendendo `BaseMapper<Entidade, InDTO, OutDTO>` (ou `SaidaMapper<Entidade, OutDTO>` quando só há saída). Dados de outras tabelas: método `default` no mapper chamado pelo service.
+- Cadastro simples estende `CrudServicePadrao` e sobrescreve só `validar()`, `paraSaida()` ou `excluir()`.
 - Repositório de entidade do usuário estende `RepositorioDoUsuario` e busca por `findByIdAndUsuarioId`. Nunca use `findById` em dado de usuário sem conferir o `usuarioId`: ver ou alterar o treino de outra pessoa é o defeito mais grave possível neste sistema.
-- Erros: `BadRequestException` (400) e `NotFoundException` (404), tratados no `GlobalExceptionHandler` como `ProblemDetail`. Recurso de outro usuário responde 404, não 403, para não revelar que existe.
+- Erros: `BadRequestException` (400), `NotFoundException(recurso, id)` (404) e `MuitasTentativasException` (429), tratados no `GlobalExceptionHandler` como `ProblemDetail`. Recurso de outro usuário responde 404, não 403, para não revelar que existe.
 - Um método `@Transactional` chamado de dentro da própria classe não abre transação.
 
 ### Banco e esquema
@@ -106,7 +109,7 @@ npm test
 
 ### Segurança
 
-- Rotas novas em `/api/**` exigem login. Só `/api/auth/**`, `/api/saude` e a documentação da API são públicas, listadas no `SecurityConfig`.
+- Rotas novas em `/api/**` exigem login (JWT no cabeçalho `Authorization: Bearer`). Só `/api/auth/login`, `/api/auth/cadastro`, `/api/saude` e a documentação da API são públicas, listadas no `SecurityConfig`.
 - Senhas com `BCryptPasswordEncoder`; nunca devolva hash de senha pela API.
 - Rota pública nova (login, cadastro, recuperação de senha) precisa de limite de tentativas.
 - Segredos só por variável de ambiente (`APP_*`), nunca no `application.yml` versionado.
@@ -158,8 +161,8 @@ npm test
 
 - **Regra pura** (cálculo de volume, carga máxima, conversão): teste unitário sem Spring, chamando o método estático ou a classe diretamente.
 - **Service com dependências**: `@ExtendWith(MockitoExtension.class)`, `@Mock` / `@InjectMocks`, fixtures com `new` + setters.
-- **Fluxo pela API**: `@SpringBootTest` + `@AutoConfigureMockMvc` e chamada aos endpoints. Sempre teste também o acesso sem login e o acesso de outro usuário quando a rota for nova.
-- O H2 dos testes é **compartilhado** entre as classes: não dependa da ordem dos testes e gere e-mails únicos (`System.nanoTime()`).
+- **Fluxo pela API**: estenda `ApiTestBase` (`@SpringBootTest` + MockMvc, com `tokenDemo()` e `tokenNovoUsuario()`). Sempre teste também o acesso sem login e o acesso de outro usuário quando a rota for nova.
+- O H2 dos testes é **compartilhado** entre as classes: não dependa da ordem dos testes, use `tokenNovoUsuario()` para criar ou alterar dados e deixe a usuária de demonstração só para leitura.
 - **App**: regras de `src/regras` com Jest em `src/regras/__tests__/*.test.ts`.
 
 ### Dados de teste
