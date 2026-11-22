@@ -2,6 +2,6 @@
 export const chaves = {
   treinos: ['treinos'] as const,
   treino: (id: number) => ['treinos', id] as const,
+  exercicios: ['exercicios'] as const,
   sessoes: ['sessoes'] as const,
-  evolucao: (exercicioId: number) => ['evolucao', exercicioId] as const,
 };

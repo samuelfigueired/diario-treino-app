@@ -1,9 +1,16 @@
 /** Tipos que espelham a API (diario-treino-api). Datas em ISO 8601. */
 
+export type DiaSemana = 'SEG' | 'TER' | 'QUA' | 'QUI' | 'SEX' | 'SAB' | 'DOM';
+
 export type Usuario = {
   id: number;
   nome: string;
   email: string;
+};
+
+export type Sessao = {
+  token: string;
+  usuario: Usuario;
 };
 
 export type Exercicio = {
@@ -19,19 +26,21 @@ export type ExercicioDoTreino = {
   exercicio: Exercicio;
   seriesPlanejadas: number;
   repeticoesPlanejadas: number;
+  /** Carga usada na última vez em que o exercício foi feito (kg). */
   ultimaCargaKg: number | null;
 };
 
 export type Treino = {
   id: number;
+  /** Letra do treino na divisão (A, B, C...). */
+  letra: string;
   nome: string;
-  descricao: string | null;
-  diasDaSemana: string[];
+  diasDaSemana: DiaSemana[];
+  duracaoEstimadaMin: number | null;
   exercicios: ExercicioDoTreino[];
 };
 
 export type SerieRegistrada = {
-  id: number;
   exercicioId: number;
   numero: number;
   cargaKg: number | null;
@@ -42,11 +51,15 @@ export type SerieRegistrada = {
 export type SessaoTreino = {
   id: number;
   treinoId: number | null;
+  /** Nome do treino no momento da execução (o treino pode ser renomeado ou apagado depois). */
   nomeTreino: string;
+  letraTreino: string;
   inicio: string;
   fim: string | null;
   series: SerieRegistrada[];
 };
+
+export type NovaSessao = Omit<SessaoTreino, 'id'>;
 
 export type PontoEvolucao = {
   data: string;

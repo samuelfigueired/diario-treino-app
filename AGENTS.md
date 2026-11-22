@@ -67,9 +67,12 @@ npm test
 - Pastas:
   - `src/app/`: só rotas e composição de telas; nada de regra de negócio.
   - `src/types`: tipos que espelham a API.
-  - `src/api`: cliente `criarApi` com `get/post/put/patch/del`; chamadas novas entram aqui.
-  - `src/regras`: regras puras (cargas, volume, datas, rótulos de status), sempre com teste em `src/regras/__tests__`.
-  - `src/components/ui`: componentes reutilizáveis (`Tela`, `Botao`, `Campo`, `Cartao`). Use-os antes de criar outros.
+  - `src/api`: cliente `criarApi` com `get/post/put/patch/del`; `servicos.ts` (uma função por chamada da API), `consultas.ts` (hooks do TanStack Query: `useTreinos`, `useSessoes`, `useRegistrarSessao`...) e `chaves.ts`. Telas usam só os hooks, nunca `fetch` nem `api` direto.
+  - `src/api/exemplo`: dados fictícios usados enquanto o backend não tem os módulos. `EXPO_PUBLIC_DADOS_EXEMPLO=false` no `.env` desliga e passa a chamar a API. Ao implementar um módulo no backend, mantenha a mesma assinatura em `servicos.ts`.
+  - `src/regras`: regras puras (cargas, volume, datas, histórico, evolução, execução, validação), sempre com teste em `src/regras/__tests__`. Toda conta ou formatação sai das telas e vem para cá.
+  - `src/components/ui`: componentes reutilizáveis (`Tela`, `Botao`, `BotaoIcone`, `Campo`, `Cartao`, `Chip`, `Segmentado`, `Indicador`, `Distintivo`, `Icone`, `GraficoLinha`, `EstadoLista`). Use-os antes de criar outros.
+  - `src/components/<funcionalidade>` (`treinos`, `execucao`, `historico`): partes de tela específicas de uma funcionalidade.
+  - `src/hooks`: hooks de interface sem regra de negócio (ex.: `useAgora` para cronômetros).
   - `src/tema`: cores, espaçamentos e tipografia do protótipo. Não use cor solta no código das telas.
 - Instale dependências com `npx expo install <pacote>` (nunca `npm install <pacote>` direto), para manter as versões compatíveis com o SDK.
 - **O Expo muda a cada SDK: não confie na memória.** Antes de usar uma API do Expo, React Native ou EAS, confira a versão de `expo` no `package.json` e leia a documentação dessa versão (`https://docs.expo.dev/versions/v<versão>.0.0/` e `https://docs.expo.dev/llms.txt`).

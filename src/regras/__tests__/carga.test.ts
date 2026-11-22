@@ -1,4 +1,12 @@
-import { converterCarga, formatarCarga, volumeDaSerie } from '../carga';
+import {
+  cargaParaCampo,
+  converterCarga,
+  converterRepeticoes,
+  emToneladas,
+  formatarCarga,
+  formatarNumero,
+  volumeDaSerie,
+} from '../carga';
 
 describe('converterCarga', () => {
   it('aceita vírgula decimal digitada no teclado brasileiro', () => {
@@ -35,7 +43,31 @@ describe('converterCarga', () => {
   });
 });
 
-describe('formatarCarga', () => {
+describe('converterRepeticoes', () => {
+  it('aceita só números inteiros maiores que zero', () => {
+    // given
+    const textos = ['10', ' 8 ', '0', '7,5', ''];
+
+    // when
+    const repeticoes = textos.map(converterRepeticoes);
+
+    // then
+    expect(repeticoes).toEqual([10, 8, null, null, null]);
+  });
+});
+
+describe('formatação de números e cargas', () => {
+  it('usa ponto como separador de milhar e vírgula decimal', () => {
+    // given
+    const valores = [7840, 12350.5, 57.5];
+
+    // when
+    const textos = valores.map((v) => formatarNumero(v));
+
+    // then
+    expect(textos).toEqual(['7.840', '12.350,5', '57,5']);
+  });
+
   it('mostra a carga com vírgula e a unidade', () => {
     // given
     const kg = 57.5;
@@ -56,6 +88,28 @@ describe('formatarCarga', () => {
 
     // then
     expect(texto).toBe('Peso corporal');
+  });
+
+  it('prepara a carga para o campo de edição sem separador de milhar', () => {
+    // given
+    const cargas = [57.5, 1200, null];
+
+    // when
+    const textos = cargas.map(cargaParaCampo);
+
+    // then
+    expect(textos).toEqual(['57,5', '1200', '']);
+  });
+
+  it('converte o volume para toneladas com uma casa decimal', () => {
+    // given
+    const kg = 86420;
+
+    // when
+    const texto = emToneladas(kg);
+
+    // then
+    expect(texto).toBe('86,4');
   });
 });
 

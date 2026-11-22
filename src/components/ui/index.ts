@@ -1,4 +1,13 @@
 export { Botao } from './Botao';
+export { BotaoIcone } from './BotaoIcone';
 export { Campo } from './Campo';
 export { Cartao } from './Cartao';
+export { Chip } from './Chip';
+export { Distintivo } from './Distintivo';
+export { EstadoLista } from './EstadoLista';
+export { GraficoLinha } from './GraficoLinha';
+export { Icone } from './Icone';
+export type { NomeIcone } from './Icone';
+export { Indicador } from './Indicador';
+export { Segmentado } from './Segmentado';
 export { Tela } from './Tela';
