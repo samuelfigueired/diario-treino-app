@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "Diário de Treino",
+    "slug": "diario-treino",
+    "scheme": "diariotreino",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0E1013",
+    "plugins": ["expo-router", "expo-secure-store"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "br.com.diariotreino"
+    },
+    "android": {
+      "package": "br.com.diariotreino",
+      "adaptiveIcon": {
+        "backgroundColor": "#0E1013",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
