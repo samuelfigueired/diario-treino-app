@@ -3,5 +3,6 @@ export * from './carga';
 export * from './datas';
 export * from './evolucao';
 export * from './execucao';
+export * from './formularioTreino';
 export * from './historico';
 export * from './treinos';

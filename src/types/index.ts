@@ -26,6 +26,8 @@ export type ExercicioDoTreino = {
   exercicio: Exercicio;
   seriesPlanejadas: number;
   repeticoesPlanejadas: number;
+  /** Carga alvo definida no treino (kg). */
+  cargaPlanejadaKg: number | null;
   /** Carga usada na última vez em que o exercício foi feito (kg). */
   ultimaCargaKg: number | null;
 };
@@ -60,6 +62,23 @@ export type SessaoTreino = {
 };
 
 export type NovaSessao = Omit<SessaoTreino, 'id'>;
+
+/** Corpo de criação/edição de treino (TreinoInDTO). */
+export type TreinoEntrada = {
+  letra: string;
+  nome: string;
+  diasDaSemana: DiaSemana[];
+  duracaoEstimadaMin: number | null;
+  exercicios: {
+    exercicioId: number;
+    seriesPlanejadas: number;
+    repeticoesPlanejadas: number;
+    cargaPlanejadaKg: number | null;
+  }[];
+};
+
+/** Corpo de criação de exercício personalizado (ExercicioInDTO). */
+export type ExercicioEntrada = { nome: string; grupoMuscular: string };
 
 export type PontoEvolucao = {
   data: string;

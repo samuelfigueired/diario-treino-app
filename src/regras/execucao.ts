@@ -1,4 +1,5 @@
 import type { SerieRegistrada } from '../types';
+import { cargaParaCampo } from './carga';
 import { converterCarga, converterRepeticoes, volumeDaSerie } from './carga';
 
 /** Série sendo preenchida na tela de execução (valores ainda como texto digitado). */
@@ -79,4 +80,29 @@ export function paraSeriesRegistradas(exercicioId: number, series: SerieEmEdicao
 export function volumeDasSeries(series: SerieRegistrada[]): number {
   const total = series.filter((s) => s.concluida).reduce((soma, s) => soma + volumeDaSerie(s.cargaKg, s.repeticoes), 0);
   return Math.round(total * 100) / 100;
+}
+
+/** Séries de uma sessão salva, agrupadas por exercício na ordem em que aparecem, prontas para edição. */
+export function seriesParaEdicao(series: SerieRegistrada[]): { exercicioId: number; series: SerieEmEdicao[] }[] {
+  const grupos: { exercicioId: number; series: SerieEmEdicao[] }[] = [];
+  for (const serie of series) {
+    let grupo = grupos.find((g) => g.exercicioId === serie.exercicioId);
+    if (!grupo) {
+      grupo = { exercicioId: serie.exercicioId, series: [] };
+      grupos.push(grupo);
+    }
+    grupo.series.push({
+      numero: serie.numero,
+      carga: cargaParaCampo(serie.cargaKg),
+      repeticoes: serie.repeticoes == null ? '' : String(serie.repeticoes),
+      concluida: serie.concluida,
+      anterior: null,
+    });
+  }
+  return grupos;
+}
+
+/** Remove a série e renumera as seguintes (1, 2, 3...). */
+export function removerSerie(series: SerieEmEdicao[], indice: number): SerieEmEdicao[] {
+  return series.filter((_, i) => i !== indice).map((s, i) => ({ ...s, numero: i + 1 }));
 }

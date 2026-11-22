@@ -1,33 +1,39 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { StyleSheet, Text } from 'react-native';
-import { apagarToken, USANDO_DADOS_EXEMPLO } from '../../api';
-import { Botao, Cartao, Tela } from '../../components/ui';
-import { cores } from '../../tema';
+import { StyleSheet, Text, View } from 'react-native';
+import { apagarToken, useUsuario } from '../../api';
+import { Botao, Cartao, EstadoLista, Tela } from '../../components/ui';
+import { cores, espaco } from '../../tema';
 
-/** RF01 · Perfil do usuário e saída da conta. Não faz parte do protótipo; tela mínima. */
+/** RF01 · Perfil do usuário e saída da conta. */
 export default function Perfil() {
+  const usuario = useUsuario();
+  const clienteQuery = useQueryClient();
+
   async function sair() {
     await apagarToken();
+    clienteQuery.clear();
     router.replace('/login');
   }
 
   return (
     <Tela titulo="Perfil">
-      {USANDO_DADOS_EXEMPLO ? (
-        <Cartao>
-          <Text style={estilos.titulo}>Dados de exemplo</Text>
-          <Text style={estilos.texto}>
-            Treinos, histórico e evolução estão vindo de dados fictícios. Para usar a API, defina
-            EXPO_PUBLIC_DADOS_EXEMPLO=false no arquivo .env.
-          </Text>
-        </Cartao>
-      ) : null}
+      <EstadoLista carregando={usuario.isLoading} erro={usuario.error} vazio={false} mensagemVazio="" aoTentarDeNovo={() => usuario.refetch()}>
+        {usuario.data ? (
+          <Cartao>
+            <View style={{ gap: espaco.xs }}>
+              <Text style={estilos.nome}>{usuario.data.nome}</Text>
+              <Text style={estilos.email}>{usuario.data.email}</Text>
+            </View>
+          </Cartao>
+        ) : null}
+      </EstadoLista>
       <Botao titulo="Sair" variante="secundario" onPress={sair} />
     </Tela>
   );
 }
 
 const estilos = StyleSheet.create({
-  titulo: { fontSize: 15, fontWeight: '600', color: cores.texto },
-  texto: { fontSize: 13, lineHeight: 19, color: cores.textoSecundario },
+  nome: { fontSize: 18, fontWeight: '600', color: cores.texto },
+  email: { fontSize: 14, color: cores.textoSecundario },
 });

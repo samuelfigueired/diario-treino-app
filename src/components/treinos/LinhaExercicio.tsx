@@ -9,12 +9,14 @@ type Props = { item: ExercicioDoTreino };
 /** Exercício do treino com séries × repetições planejadas e a última carga usada. */
 export function LinhaExercicio({ item }: Props) {
   const planejado = `${item.seriesPlanejadas} séries × ${item.repeticoesPlanejadas} reps`;
-  const carga = item.ultimaCargaKg == null ? '—' : formatarCarga(item.ultimaCargaKg);
+  const referencia = item.ultimaCargaKg ?? item.cargaPlanejadaKg;
+  const rotuloCarga = item.ultimaCargaKg != null ? 'última carga' : item.cargaPlanejadaKg != null ? 'carga alvo' : 'sem carga';
+  const carga = referencia == null ? '—' : formatarCarga(referencia);
   return (
     <View
       style={estilos.raiz}
       accessible
-      accessibilityLabel={`${item.ordem}. ${item.exercicio.nome}, ${planejado}, última carga ${carga}`}
+      accessibilityLabel={`${item.ordem}. ${item.exercicio.nome}, ${planejado}, ${rotuloCarga} ${carga}`}
     >
       <Icone nome="arrastar" tamanho={18} cor={cores.textoSecundario} />
       <Distintivo texto={String(item.ordem)} tamanho={32} />
@@ -24,7 +26,7 @@ export function LinhaExercicio({ item }: Props) {
       </View>
       <View style={{ alignItems: 'flex-end', gap: 2 }}>
         <Text style={estilos.carga}>{carga}</Text>
-        <Text style={estilos.rotuloCarga}>última carga</Text>
+        <Text style={estilos.rotuloCarga}>{rotuloCarga}</Text>
       </View>
     </View>
   );

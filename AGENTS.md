@@ -46,7 +46,7 @@ mvn test
 mvn test -Dtest="NomeDaClasse*Test" -Dsurefire.failIfNoSpecifiedTests=false
 ```
 
-- Subir a API em desenvolvimento (porta 8080, H2 em memória): `mvn spring-boot:run`. Documentação da API: `http://localhost:8080/swagger-ui.html`. Fora do perfil prod sobe a usuária de demonstração `mariana.rocha@exemplo.com.br` / `treino2026`, com treinos A–D e 12 semanas de histórico.
+- Subir a API em desenvolvimento (porta 8080, H2 em memória): `mvn spring-boot:run`. Documentação da API: `http://localhost:8080/swagger-ui.html`. O banco de desenvolvimento é um H2 em arquivo (`Backend/dados/`), então os dados continuam depois de reiniciar. Dados fictícios só com `APP_DEMO=true` (usuária `mariana.rocha@exemplo.com.br` / `treino2026`); os testes ligam isso pelo perfil `test`.
 - Postgres local opcional: `docker compose up -d` na pasta `Backend` e `mvn spring-boot:run -Dspring-boot.run.profiles=prod` com as variáveis `APP_DB_URL`, `APP_DB_USUARIO` e `APP_DB_SENHA`.
 - Arquitetura e convenções de pastas: **leia `Backend/ARQUITETURA.md` antes de criar um módulo**. Ela vale sobre este arquivo em caso de conflito.
 
@@ -68,10 +68,10 @@ npm test
   - `src/app/`: só rotas e composição de telas; nada de regra de negócio.
   - `src/types`: tipos que espelham a API.
   - `src/api`: cliente `criarApi` com `get/post/put/patch/del`; `servicos.ts` (uma função por chamada da API), `consultas.ts` (hooks do TanStack Query: `useTreinos`, `useSessoes`, `useRegistrarSessao`...) e `chaves.ts`. Telas usam só os hooks, nunca `fetch` nem `api` direto.
-  - `src/api/exemplo`: dados fictícios usados enquanto o backend não tem os módulos. `EXPO_PUBLIC_DADOS_EXEMPLO=false` no `.env` desliga e passa a chamar a API. Ao implementar um módulo no backend, mantenha a mesma assinatura em `servicos.ts`.
+  - O app usa só dados reais da API (não há dados fictícios). Rota nova: função em `servicos.ts`, hook em `consultas.ts` e invalidação das chaves afetadas.
   - `src/regras`: regras puras (cargas, volume, datas, histórico, evolução, execução, validação), sempre com teste em `src/regras/__tests__`. Toda conta ou formatação sai das telas e vem para cá.
   - `src/components/ui`: componentes reutilizáveis (`Tela`, `Botao`, `BotaoIcone`, `Campo`, `Cartao`, `Chip`, `Segmentado`, `Indicador`, `Distintivo`, `Icone`, `GraficoLinha`, `EstadoLista`). Use-os antes de criar outros.
-  - `src/components/<funcionalidade>` (`treinos`, `execucao`, `historico`): partes de tela específicas de uma funcionalidade.
+  - `src/components/<funcionalidade>` (`treinos`, `execucao`, `historico`): partes de tela específicas de uma funcionalidade (ex.: `FormularioTreino`, `SeletorExercicio`).
   - `src/hooks`: hooks de interface sem regra de negócio (ex.: `useAgora` para cronômetros).
   - `src/tema`: cores, espaçamentos e tipografia do protótipo. Não use cor solta no código das telas.
 - Instale dependências com `npx expo install <pacote>` (nunca `npm install <pacote>` direto), para manter as versões compatíveis com o SDK.

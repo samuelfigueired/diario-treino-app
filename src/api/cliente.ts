@@ -2,6 +2,7 @@ import type { Problema } from '../types';
 
 const MENSAGEM_SEM_CONEXAO = 'Sem conexão com o servidor. Verifique sua internet e tente de novo.';
 const MENSAGEM_ERRO_PADRAO = 'Não foi possível concluir agora. Tente novamente em instantes.';
+export const MENSAGEM_SESSAO_EXPIRADA = 'Sua sessão expirou. Entre novamente.';
 
 export class ErroApi extends Error {
   constructor(
@@ -15,10 +16,11 @@ export class ErroApi extends Error {
 }
 
 type ObterToken = () => Promise<string | null>;
+type AoExpirar = () => Promise<void> | void;
 type Metodo = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
 /** Cliente HTTP da API. Envia o token de acesso e converte ProblemDetail em ErroApi. */
-export function criarApi(baseUrl: string, obterToken: ObterToken) {
+export function criarApi(baseUrl: string, obterToken: ObterToken, aoExpirar?: AoExpirar) {
   async function requisitar<T>(metodo: Metodo, caminho: string, corpo?: unknown): Promise<T> {
     const token = await obterToken();
     let resposta: Response;
@@ -34,6 +36,10 @@ export function criarApi(baseUrl: string, obterToken: ObterToken) {
       });
     } catch {
       throw new ErroApi(MENSAGEM_SEM_CONEXAO, 0);
+    }
+    if (resposta.status === 401 && token) {
+      await aoExpirar?.();
+      throw new ErroApi(MENSAGEM_SESSAO_EXPIRADA, 401);
     }
     if (!resposta.ok) {
       const problema = (await resposta.json().catch(() => null)) as Problema | null;

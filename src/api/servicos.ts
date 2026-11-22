@@ -1,68 +1,44 @@
-import type { Exercicio, NovaSessao, Sessao, SessaoTreino, Treino } from '../types';
+import type {
+  Exercicio,
+  ExercicioEntrada,
+  NovaSessao,
+  Sessao,
+  SessaoTreino,
+  Treino,
+  TreinoEntrada,
+  Usuario,
+} from '../types';
 import { api } from './cliente-padrao';
-import { criarDadosExemplo } from './exemplo/dados';
 
-/**
- * Chamadas à API usadas pelas telas. Enquanto os módulos do backend não existem,
- * EXPO_PUBLIC_DADOS_EXEMPLO (padrão: ligado) faz as funções responderem com dados fictícios.
- */
-export const USANDO_DADOS_EXEMPLO = process.env.EXPO_PUBLIC_DADOS_EXEMPLO !== 'false';
+/** Uma função por rota da API (diario-treino-api). As telas usam os hooks de consultas.ts, não estas funções. */
 
-const MENSAGEM_TREINO_NAO_ENCONTRADO = 'Treino não encontrado.';
-const ATRASO_SIMULADO_MS = 250;
+export const entrar = (email: string, senha: string) => api.post<Sessao>('/api/auth/login', { email, senha });
 
-const exemplo = criarDadosExemplo();
-/** Devolve uma cópia após um pequeno atraso, como faria a rede (a cópia evita que o cache aponte para o mesmo objeto). */
-const esperar = <T>(valor: T) =>
-  new Promise<T>((r) => setTimeout(() => r(JSON.parse(JSON.stringify(valor)) as T), ATRASO_SIMULADO_MS));
+export const criarConta = (nome: string, email: string, senha: string) =>
+  api.post<Sessao>('/api/auth/cadastro', { nome, email, senha });
 
-export async function entrar(email: string, senha: string): Promise<Sessao> {
-  if (USANDO_DADOS_EXEMPLO) {
-    return esperar({ token: 'token-de-exemplo', usuario: { id: 1, nome: 'Mariana Alves Rocha', email } });
-  }
-  return api.post<Sessao>('/api/auth/login', { email, senha });
-}
+export const obterUsuario = () => api.get<Usuario>('/api/auth/me');
 
-export async function criarConta(nome: string, email: string, senha: string): Promise<Sessao> {
-  if (USANDO_DADOS_EXEMPLO) return esperar({ token: 'token-de-exemplo', usuario: { id: 1, nome, email } });
-  return api.post<Sessao>('/api/auth/cadastro', { nome, email, senha });
-}
+export const listarTreinos = () => api.get<Treino[]>('/api/treinos');
 
-export async function listarTreinos(): Promise<Treino[]> {
-  if (USANDO_DADOS_EXEMPLO) return esperar(exemplo.treinos);
-  return api.get<Treino[]>('/api/treinos');
-}
+export const obterTreino = (id: number) => api.get<Treino>(`/api/treinos/${id}`);
 
-export async function obterTreino(id: number): Promise<Treino> {
-  if (USANDO_DADOS_EXEMPLO) {
-    const treino = exemplo.treinos.find((t) => t.id === id);
-    if (!treino) throw new Error(MENSAGEM_TREINO_NAO_ENCONTRADO);
-    return esperar(treino);
-  }
-  return api.get<Treino>(`/api/treinos/${id}`);
-}
+export const criarTreino = (treino: TreinoEntrada) => api.post<Treino>('/api/treinos', treino);
 
-export async function listarExercicios(): Promise<Exercicio[]> {
-  if (USANDO_DADOS_EXEMPLO) return esperar(exemplo.exercicios);
-  return api.get<Exercicio[]>('/api/exercicios');
-}
+export const atualizarTreino = (id: number, treino: TreinoEntrada) => api.put<Treino>(`/api/treinos/${id}`, treino);
 
-export async function listarSessoes(): Promise<SessaoTreino[]> {
-  if (USANDO_DADOS_EXEMPLO) return esperar(exemplo.sessoes);
-  return api.get<SessaoTreino[]>('/api/sessoes');
-}
+export const excluirTreino = (id: number) => api.del(`/api/treinos/${id}`);
 
-export async function registrarSessao(sessao: NovaSessao): Promise<SessaoTreino> {
-  if (USANDO_DADOS_EXEMPLO) {
-    const salva = { ...sessao, id: exemplo.sessoes.length + 1000 };
-    exemplo.sessoes.push(salva);
-    for (const treino of exemplo.treinos.filter((t) => t.id === sessao.treinoId)) {
-      for (const item of treino.exercicios) {
-        const ultima = sessao.series.filter((s) => s.exercicioId === item.exercicio.id).pop();
-        if (ultima?.cargaKg != null) item.ultimaCargaKg = ultima.cargaKg;
-      }
-    }
-    return esperar(salva);
-  }
-  return api.post<SessaoTreino>('/api/sessoes', sessao);
-}
+export const listarExercicios = () => api.get<Exercicio[]>('/api/exercicios');
+
+export const criarExercicio = (exercicio: ExercicioEntrada) => api.post<Exercicio>('/api/exercicios', exercicio);
+
+export const listarSessoes = () => api.get<SessaoTreino[]>('/api/sessoes');
+
+export const obterSessao = (id: number) => api.get<SessaoTreino>(`/api/sessoes/${id}`);
+
+export const registrarSessao = (sessao: NovaSessao) => api.post<SessaoTreino>('/api/sessoes', sessao);
+
+export const atualizarSessao = (id: number, sessao: NovaSessao) => api.put<SessaoTreino>(`/api/sessoes/${id}`, sessao);
+
+export const excluirSessao = (id: number) => api.del(`/api/sessoes/${id}`);

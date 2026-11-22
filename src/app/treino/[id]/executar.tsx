@@ -44,7 +44,7 @@ export default function ExecutarTreino() {
         seriesIniciais(
           item.seriesPlanejadas,
           item.repeticoesPlanejadas,
-          cargaParaCampo(item.ultimaCargaKg),
+          cargaParaCampo(item.ultimaCargaKg ?? item.cargaPlanejadaKg),
           item.ultimaCargaKg == null ? null : `${formatarCarga(item.ultimaCargaKg)} × ${item.repeticoesPlanejadas}`,
         ),
       ),
@@ -157,7 +157,11 @@ export default function ExecutarTreino() {
               </Text>
               <Text style={estilos.legenda}>
                 Meta {atual.seriesPlanejadas} × {atual.repeticoesPlanejadas}
-                {atual.ultimaCargaKg != null ? `  ·  Última vez ${formatarCarga(atual.ultimaCargaKg)}` : ''}
+                {atual.ultimaCargaKg != null
+                  ? `  ·  Última vez ${formatarCarga(atual.ultimaCargaKg)}`
+                  : atual.cargaPlanejadaKg != null
+                    ? `  ·  Alvo ${formatarCarga(atual.cargaPlanejadaKg)}`
+                    : ''}
               </Text>
             </View>
 

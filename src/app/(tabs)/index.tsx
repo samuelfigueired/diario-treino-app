@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useMemo } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSessoes, useTreinos } from '../../api';
 import { CartaoTreino } from '../../components/treinos/CartaoTreino';
 import { ResumoSemana } from '../../components/treinos/ResumoSemana';
@@ -40,7 +40,7 @@ export default function MeusTreinos() {
           carregando={treinos.isLoading}
           erro={treinos.error}
           vazio={treinos.data?.length === 0}
-          mensagemVazio="Você ainda não tem treinos. Crie o primeiro."
+          mensagemVazio="Você ainda não tem treinos. Toque em Novo treino para montar o primeiro."
           aoTentarDeNovo={() => treinos.refetch()}
         >
           <View style={{ gap: 10 }}>
@@ -59,7 +59,7 @@ export default function MeusTreinos() {
       <Botao
         titulo="+  Novo treino"
         variante="secundario"
-        onPress={() => Alert.alert('Novo treino', 'O cadastro de treinos entra junto com a API de treinos.')}
+        onPress={() => router.push('/treino/novo')}
       />
     </Tela>
   );

@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSessoes, useTreino } from '../../../api';
 import { LinhaExercicio } from '../../../components/treinos/LinhaExercicio';
 import { Botao, BotaoIcone, Chip, EstadoLista, Icone, Tela } from '../../../components/ui';
@@ -13,8 +13,6 @@ import {
   textoQuantidadeExercicios,
 } from '../../../regras';
 import { cores, espaco, raio } from '../../../tema';
-
-const MENSAGEM_EM_BREVE = 'A edição de treinos entra junto com a API de treinos.';
 
 /** RF03 · Detalhe do treino e exercícios associados. Protótipo: tela 03. */
 export default function DetalheTreino() {
@@ -32,11 +30,15 @@ export default function DetalheTreino() {
 
   return (
     <Tela
-      rodape={t ? <Botao titulo="Iniciar treino" onPress={() => router.push(`/treino/${t.id}/executar`)} /> : undefined}
+      rodape={
+        t && t.exercicios.length > 0 ? (
+          <Botao titulo="Iniciar treino" onPress={() => router.push(`/treino/${t.id}/executar`)} />
+        ) : undefined
+      }
     >
       <View style={estilos.barra}>
         <BotaoIcone icone="esquerda" rotulo="Voltar" onPress={() => router.back()} />
-        <Pressable accessibilityRole="button" onPress={() => Alert.alert('Editar treino', MENSAGEM_EM_BREVE)} style={estilos.acao}>
+        <Pressable accessibilityRole="button" onPress={() => router.push(`/treino/${id}/editar`)} style={estilos.acao}>
           <Text style={estilos.link}>Editar</Text>
         </Pressable>
       </View>
@@ -61,12 +63,15 @@ export default function DetalheTreino() {
               <View style={estilos.secao}>
                 <Text style={estilos.tituloSecao}>Exercícios</Text>
               </View>
+              {t.exercicios.length === 0 ? (
+                <Text style={estilos.registro}>Este treino ainda não tem exercícios. Adicione para poder iniciar.</Text>
+              ) : null}
               {t.exercicios.map((item) => (
                 <LinhaExercicio key={item.id} item={item} />
               ))}
               <Pressable
                 accessibilityRole="button"
-                onPress={() => Alert.alert('Adicionar exercício', MENSAGEM_EM_BREVE)}
+                onPress={() => router.push(`/treino/${id}/editar`)}
                 style={estilos.adicionar}
               >
                 <Icone nome="mais" tamanho={18} cor={cores.textoSecundario} />

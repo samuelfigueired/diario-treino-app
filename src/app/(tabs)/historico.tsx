@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSessoes, useTreinos } from '../../api';
@@ -41,7 +42,7 @@ export default function Historico() {
         carregando={sessoes.isLoading}
         erro={sessoes.error}
         vazio={grupos.length === 0}
-        mensagemVazio="Nenhum treino registrado ainda. Inicie um treino para ele aparecer aqui."
+        mensagemVazio="Nenhum treino registrado ainda. Abra um treino e toque em Iniciar treino."
         aoTentarDeNovo={() => sessoes.refetch()}
       >
         {grupos.map((grupo) => (
@@ -50,7 +51,7 @@ export default function Historico() {
               {grupo.titulo.toUpperCase()}
             </Text>
             {grupo.sessoes.map((s) => (
-              <CartaoSessao key={s.id} sessao={s} />
+              <CartaoSessao key={s.id} sessao={s} onPress={() => router.push(`/sessao/${s.id}`)} />
             ))}
           </View>
         ))}

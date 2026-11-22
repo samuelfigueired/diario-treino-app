@@ -4,6 +4,8 @@ import {
   paraSeriesRegistradas,
   podeConcluir,
   progressoDaSessao,
+  removerSerie,
+  seriesParaEdicao,
   seriesIniciais,
   volumeDasSeries,
 } from '../execucao';
@@ -88,5 +90,34 @@ describe('séries da execução', () => {
     // then
     expect(registradas).toEqual([{ exercicioId: SUPINO_RETO, numero: 1, cargaKg: 62.5, repeticoes: 10, concluida: true }]);
     expect(volumeDasSeries(registradas)).toBe(625);
+  });
+});
+
+describe('edição de sessão salva', () => {
+  it('agrupa as séries por exercício e formata a carga para edição', () => {
+    // given
+    const series = [
+      { exercicioId: SUPINO_RETO, numero: 1, cargaKg: 62.5, repeticoes: 10, concluida: true },
+      { exercicioId: 4, numero: 1, cargaKg: 25, repeticoes: 12, concluida: true },
+      { exercicioId: SUPINO_RETO, numero: 2, cargaKg: null, repeticoes: 8, concluida: true },
+    ];
+
+    // when
+    const grupos = seriesParaEdicao(series);
+
+    // then
+    expect(grupos.map((g) => g.exercicioId)).toEqual([SUPINO_RETO, 4]);
+    expect(grupos[0].series.map((s) => s.carga)).toEqual(['62,5', '']);
+  });
+
+  it('renumera as séries depois de remover uma', () => {
+    // given
+    const series = seriesIniciais(3, 10, '60', null);
+
+    // when
+    const restantes = removerSerie(series, 0);
+
+    // then
+    expect(restantes.map((s) => s.numero)).toEqual([1, 2]);
   });
 });

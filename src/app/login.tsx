@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -21,11 +21,13 @@ export default function Login() {
   const [senha, setSenha] = useState('');
   const [erros, setErros] = useState<ErrosAcesso>({});
   const criando = modo === 'criar';
+  const clienteQuery = useQueryClient();
 
   const acesso = useMutation({
     mutationFn: () => (criando ? criarConta(nome.trim(), email.trim(), senha) : entrar(email.trim(), senha)),
     onSuccess: async (sessao) => {
       await salvarToken(sessao.token);
+      clienteQuery.clear();
       router.replace('/');
     },
   });
@@ -79,7 +81,7 @@ export default function Login() {
           {!criando ? (
             <Pressable
               accessibilityRole="button"
-              onPress={() => Alert.alert('Recuperar senha', 'A recuperação de senha ainda não está disponível.')}
+              onPress={() => Alert.alert('Recuperar senha', 'A recuperação de senha ainda não está disponível. Fale com o administrador do app.')}
               style={estilos.esqueci}
             >
               <Text style={estilos.link}>Esqueci minha senha</Text>

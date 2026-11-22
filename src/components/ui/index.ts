@@ -1,6 +1,7 @@
 export { Botao } from './Botao';
 export { BotaoIcone } from './BotaoIcone';
 export { Campo } from './Campo';
+export { CampoCompacto } from './CampoCompacto';
 export { Cartao } from './Cartao';
 export { Chip } from './Chip';
 export { Distintivo } from './Distintivo';

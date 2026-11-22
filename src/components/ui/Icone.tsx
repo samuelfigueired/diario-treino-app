@@ -24,6 +24,10 @@ const ICONES = {
   haltere: [p('M6.5 6.5l11 11M21 21l-1-1M3 3l1 1M18 22l4-4M2 6l4-4M3 10l7-7M14 21l7-7')],
   sair: [p('M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4'), p('m16 17 5-5-5-5'), p('M21 12H9')],
   email: [{ tipo: 'rect', x: 3, y: 5, width: 18, height: 14, rx: 2 }, p('m3 7 9 6 9-6')],
+  cima: [p('m18 15-6-6-6 6')],
+  fechar: [p('M18 6 6 18M6 6l12 12')],
+  lixeira: [p('M3 6h18'), p('M8 6V4h8v2'), p('M19 6l-1 14H6L5 6'), p('M10 11v6M14 11v6')],
+  busca: [c(11, 11, 7), p('m20 20-3.5-3.5')],
 } satisfies Record<string, Forma[]>;
 
 export type NomeIcone = keyof typeof ICONES;
