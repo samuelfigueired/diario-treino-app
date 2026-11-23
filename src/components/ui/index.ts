@@ -4,6 +4,7 @@ export { Campo } from './Campo';
 export { CampoCompacto } from './CampoCompacto';
 export { Cartao } from './Cartao';
 export { Chip } from './Chip';
+export { avisar, confirmar } from './dialogos';
 export { Distintivo } from './Distintivo';
 export { EstadoLista } from './EstadoLista';
 export { GraficoLinha } from './GraficoLinha';

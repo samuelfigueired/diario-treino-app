@@ -1,9 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { criarConta, entrar, salvarToken } from '../api';
-import { Botao, Campo, Icone, Segmentado, Tela } from '../components/ui';
+import { avisar, Botao, Campo, Icone, Segmentado, Tela } from '../components/ui';
 import { ErrosAcesso, validarAcesso } from '../regras';
 import { cores, espaco } from '../tema';
 
@@ -81,7 +81,7 @@ export default function Login() {
           {!criando ? (
             <Pressable
               accessibilityRole="button"
-              onPress={() => Alert.alert('Recuperar senha', 'A recuperação de senha ainda não está disponível. Fale com o administrador do app.')}
+              onPress={() => avisar('Recuperar senha', 'A recuperação de senha ainda não está disponível. Fale com o administrador do app.')}
               style={estilos.esqueci}
             >
               <Text style={estilos.link}>Esqueci minha senha</Text>

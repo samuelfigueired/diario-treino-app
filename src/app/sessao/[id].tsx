@@ -1,8 +1,8 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useAtualizarSessao, useExcluirSessao, useExercicios, useSessao } from '../../api';
-import { Botao, BotaoIcone, CampoCompacto, EstadoLista, Icone, Tela } from '../../components/ui';
+import { avisar, Botao, BotaoIcone, CampoCompacto, confirmar, EstadoLista, Icone, Tela } from '../../components/ui';
 import {
   formatarDataLonga,
   formatarDuracao,
@@ -49,7 +49,7 @@ export default function DetalheSessao() {
   function salvar() {
     if (!s || !grupos) return;
     if (grupos.some((g) => g.series.some((serie) => !podeConcluir(serie)))) {
-      Alert.alert('Séries incompletas', MENSAGEM_SERIE_INVALIDA);
+      avisar('Séries incompletas', MENSAGEM_SERIE_INVALIDA);
       return;
     }
     atualizar.mutate(
@@ -66,10 +66,13 @@ export default function DetalheSessao() {
   }
 
   function confirmarExclusao() {
-    Alert.alert('Excluir este treino do histórico?', 'Esta ação não pode ser desfeita.', [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Excluir', style: 'destructive', onPress: () => excluir.mutate(sessaoId, { onSuccess: () => router.back() }) },
-    ]);
+    confirmar({
+      titulo: 'Excluir este treino do histórico?',
+      mensagem: 'Esta ação não pode ser desfeita.',
+      confirmar: 'Excluir',
+      destrutivo: true,
+      aoConfirmar: () => excluir.mutate(sessaoId, { onSuccess: () => router.back() }),
+    });
   }
 
   return (

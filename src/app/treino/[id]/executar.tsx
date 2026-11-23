@@ -1,10 +1,10 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRegistrarSessao, useTreino } from '../../../api';
 import { CartaoDescanso } from '../../../components/execucao/CartaoDescanso';
 import { TabelaSeries } from '../../../components/execucao/TabelaSeries';
-import { Botao, BotaoIcone, EstadoLista, Tela } from '../../../components/ui';
+import { avisar, Botao, BotaoIcone, confirmar, EstadoLista, Tela } from '../../../components/ui';
 import { useAgora } from '../../../hooks/useAgora';
 import {
   adicionarSerie,
@@ -64,7 +64,7 @@ export default function ExecutarTreino() {
   function alternarSerie(indice: number) {
     const serie = seriesAtuais[indice];
     if (!serie.concluida && !podeConcluir(serie)) {
-      Alert.alert('Série incompleta', MENSAGEM_SERIE_INCOMPLETA);
+      avisar('Série incompleta', MENSAGEM_SERIE_INCOMPLETA);
       return;
     }
     atualizarSeries((lista) => lista.map((s, i) => (i === indice ? { ...s, concluida: !s.concluida } : s)));
@@ -84,7 +84,7 @@ export default function ExecutarTreino() {
       },
       {
         onSuccess: () => {
-          router.dismissAll();
+          if (router.canDismiss()) router.dismissAll();
           router.navigate('/historico');
         },
       },
@@ -93,16 +93,23 @@ export default function ExecutarTreino() {
 
   function finalizar() {
     if (progresso.concluidas === 0) {
-      Alert.alert('Sair do treino?', 'Nenhuma série foi concluída, então nada será salvo.', [
-        { text: 'Continuar treinando', style: 'cancel' },
-        { text: 'Sair', style: 'destructive', onPress: () => router.back() },
-      ]);
+      confirmar({
+        titulo: 'Sair do treino?',
+        mensagem: 'Nenhuma série foi concluída, então nada será salvo.',
+        confirmar: 'Sair',
+        cancelar: 'Continuar treinando',
+        destrutivo: true,
+        aoConfirmar: () => router.back(),
+      });
       return;
     }
-    Alert.alert('Finalizar treino?', `${progresso.concluidas} de ${progresso.total} séries concluídas.`, [
-      { text: 'Continuar treinando', style: 'cancel' },
-      { text: 'Finalizar e salvar', onPress: salvar },
-    ]);
+    confirmar({
+      titulo: 'Finalizar treino?',
+      mensagem: `${progresso.concluidas} de ${progresso.total} séries concluídas.`,
+      confirmar: 'Finalizar e salvar',
+      cancelar: 'Continuar treinando',
+      aoConfirmar: salvar,
+    });
   }
 
   return (
