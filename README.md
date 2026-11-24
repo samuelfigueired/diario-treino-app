@@ -10,6 +10,16 @@ Trabalho da disciplina **Desenvolvimento de Aplicações Móveis**.
 
 > A API gratuita do Render "dorme" após 15 minutos sem uso. O primeiro acesso pode levar cerca de 1 minuto.
 
+## Como abrir o app
+
+| Opção | Como | Observação |
+|---|---|---|
+| **Navegador (mais simples)** | Abra https://diario-treino.expo.app no computador ou no celular | Funciona em qualquer aparelho, inclusive iPhone. Crie uma conta na tela de login |
+| **Expo Go rodando o código** | Siga "Como rodar" abaixo e leia o QR code do `npx expo start` com o Expo Go | Precisa do Expo Go compatível com o **SDK 58** (Android: Play Store; iPhone: veja a nota abaixo) |
+| **Expo Go pela versão publicada (EAS Update)** | No Expo Go, abra `exp://u.expo.dev/2e483760-69cc-4beb-b8f5-00c4ffd4024f?runtime-version=0.1.0&channel-name=preview` | Só abre para contas convidadas no projeto `@samuelfigueiredo/diario-treino` no Expo; para outras contas o Expo Go mostra erro 403 |
+
+> **iPhone:** o Expo Go da App Store pode não acompanhar o SDK mais recente do Expo. Se o Expo Go do iPhone recusar o projeto, use a versão no navegador.
+
 ## Como rodar
 
 ### Opção 1: usando a API publicada (mais simples)
