@@ -12,4 +12,4 @@ export { Icone } from './Icone';
 export type { NomeIcone } from './Icone';
 export { Indicador } from './Indicador';
 export { Segmentado } from './Segmentado';
-export { Tela } from './Tela';
+export { estiloConteudoLista, Tela } from './Tela';

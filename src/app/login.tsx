@@ -1,9 +1,10 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
-import { criarConta, entrar, salvarToken } from '../api';
+import { criarConta, entrar } from '../api';
 import { avisar, Botao, Campo, Icone, Segmentado, Tela } from '../components/ui';
+import { useAutenticacao } from '../contextos';
 import { ErrosAcesso, validarAcesso } from '../regras';
 import { cores, espaco } from '../tema';
 
@@ -21,13 +22,12 @@ export default function Login() {
   const [senha, setSenha] = useState('');
   const [erros, setErros] = useState<ErrosAcesso>({});
   const criando = modo === 'criar';
-  const clienteQuery = useQueryClient();
+  const autenticacao = useAutenticacao();
 
   const acesso = useMutation({
     mutationFn: () => (criando ? criarConta(nome.trim(), email.trim(), senha) : entrar(email.trim(), senha)),
     onSuccess: async (sessao) => {
-      await salvarToken(sessao.token);
-      clienteQuery.clear();
+      await autenticacao.entrar(sessao.token);
       router.replace('/');
     },
   });

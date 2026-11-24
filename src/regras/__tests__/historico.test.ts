@@ -1,4 +1,4 @@
-import { agruparPorSemana, resumoDaSessao, sessoesDosUltimosDias, totaisDasSessoes } from '../historico';
+import { agruparPorSemana, itensDoHistorico, resumoDaSessao, sessoesDosUltimosDias, totaisDasSessoes } from '../historico';
 import { serie, sessao, SUPINO_RETO, TRICEPS_CORDA } from '../__fixtures__/sessoes';
 
 const hoje = new Date(2026, 10, 3);
@@ -59,5 +59,18 @@ describe('totais do histórico', () => {
 
     // then
     expect(resumo).toEqual({ minutos: 58, series: 1, volumeKg: 600 });
+  });
+});
+
+describe('itensDoHistorico', () => {
+  it('intercala o título de cada semana com as suas sessões', () => {
+    // given
+    const grupos = agruparPorSemana([sessao(1, [2026, 10, 27], []), sessao(2, [2026, 11, 3], [])], hoje);
+
+    // when
+    const itens = itensDoHistorico(grupos);
+
+    // then
+    expect(itens.map((i) => i.chave)).toEqual(['semana-Esta semana', 'sessao-2', 'semana-Semana passada', 'sessao-1']);
   });
 });

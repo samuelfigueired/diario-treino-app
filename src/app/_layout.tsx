@@ -3,6 +3,7 @@ import { router, Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import { ErroApi } from '../api';
+import { AutenticacaoProvider, PreferenciasProvider, TreinoEmAndamentoProvider } from '../contextos';
 import { cores } from '../tema';
 
 /** Token expirado em qualquer chamada: volta para o login. */
@@ -27,6 +28,10 @@ export default function LayoutRaiz() {
   );
   return (
     <QueryClientProvider client={clienteQuery}>
+      {/* Estado compartilhado (Context API): login, preferências e treino em andamento. */}
+      <AutenticacaoProvider>
+      <PreferenciasProvider>
+      <TreinoEmAndamentoProvider>
       <StatusBar style="light" />
       <Stack
         screenOptions={{
@@ -42,6 +47,9 @@ export default function LayoutRaiz() {
         <Stack.Screen name="treino/[id]/editar" options={{ presentation: 'modal' }} />
         <Stack.Screen name="sessao/[id]" />
       </Stack>
+      </TreinoEmAndamentoProvider>
+      </PreferenciasProvider>
+      </AutenticacaoProvider>
     </QueryClientProvider>
   );
 }

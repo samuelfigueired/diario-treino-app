@@ -44,3 +44,16 @@ export function resumoDaSessao(sessao: SessaoTreino) {
     volumeKg: volumeDasSeries(sessao.series),
   };
 }
+
+/** Linha da lista do histórico: cabeçalho de semana ou cartão de sessão. */
+export type ItemDoHistorico =
+  | { tipo: 'semana'; chave: string; titulo: string }
+  | { tipo: 'sessao'; chave: string; sessao: SessaoTreino };
+
+/** Achata os grupos por semana em uma única lista para a FlatList. */
+export function itensDoHistorico(grupos: GrupoDeSessoes[]): ItemDoHistorico[] {
+  return grupos.flatMap((grupo) => [
+    { tipo: 'semana' as const, chave: `semana-${grupo.titulo}`, titulo: grupo.titulo },
+    ...grupo.sessoes.map((sessao) => ({ tipo: 'sessao' as const, chave: `sessao-${sessao.id}`, sessao })),
+  ]);
+}

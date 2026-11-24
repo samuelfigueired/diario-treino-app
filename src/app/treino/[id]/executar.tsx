@@ -5,17 +5,18 @@ import { useRegistrarSessao, useTreino } from '../../../api';
 import { CartaoDescanso } from '../../../components/execucao/CartaoDescanso';
 import { TabelaSeries } from '../../../components/execucao/TabelaSeries';
 import { avisar, Botao, BotaoIcone, confirmar, EstadoLista, Tela } from '../../../components/ui';
+import { usePreferencias, useTreinoEmAndamento } from '../../../contextos';
 import { useAgora } from '../../../hooks/useAgora';
 import {
   adicionarSerie,
   cargaParaCampo,
-  DESCANSO_PADRAO_SEGUNDOS,
   formatarCarga,
   formatarCronometro,
   indiceSerieAtual,
   paraSeriesRegistradas,
   podeConcluir,
   progressoDaSessao,
+  rascunhoServePara,
   SerieEmEdicao,
   seriesIniciais,
 } from '../../../regras';
@@ -29,16 +30,26 @@ export default function ExecutarTreino() {
   const treino = useTreino(Number(id));
   const registrar = useRegistrarSessao();
   const agora = useAgora();
+  const { rascunho, carregado, guardar, descartar } = useTreinoEmAndamento();
+  const { preferencias } = usePreferencias();
 
-  const [inicio] = useState(() => new Date());
+  const [inicio, setInicio] = useState(() => new Date());
   const [indiceExercicio, setIndiceExercicio] = useState(0);
   const [series, setSeries] = useState<SerieEmEdicao[][] | null>(null);
   const [descansoAte, setDescansoAte] = useState<number | null>(null);
 
   const t = treino.data;
 
+  // Monta as séries uma vez: retoma o rascunho salvo no aparelho ou começa do zero.
   useEffect(() => {
-    if (!t || series) return;
+    if (!t || series || !carregado) return;
+    if (rascunhoServePara(rascunho, t.id, t.exercicios.length)) {
+      setInicio(new Date(rascunho.inicio));
+      setIndiceExercicio(rascunho.indiceExercicio);
+      setDescansoAte(rascunho.descansoAte);
+      setSeries(rascunho.series);
+      return;
+    }
     setSeries(
       t.exercicios.map((item) =>
         seriesIniciais(
@@ -49,7 +60,21 @@ export default function ExecutarTreino() {
         ),
       ),
     );
-  }, [t, series]);
+  }, [t, series, carregado, rascunho]);
+
+  // A cada mudança, grava o treino em andamento (AsyncStorage) para não perder nada se o app fechar.
+  useEffect(() => {
+    if (!t || !series) return;
+    guardar({
+      treinoId: t.id,
+      nomeTreino: t.nome,
+      letraTreino: t.letra,
+      inicio: inicio.toISOString(),
+      indiceExercicio,
+      series,
+      descansoAte,
+    });
+  }, [t, series, inicio, indiceExercicio, descansoAte, guardar]);
 
   const atual = t?.exercicios[indiceExercicio];
   const seriesAtuais = series?.[indiceExercicio] ?? [];
@@ -68,7 +93,7 @@ export default function ExecutarTreino() {
       return;
     }
     atualizarSeries((lista) => lista.map((s, i) => (i === indice ? { ...s, concluida: !s.concluida } : s)));
-    if (!serie.concluida) setDescansoAte(Date.now() + DESCANSO_PADRAO_SEGUNDOS * 1000);
+    if (!serie.concluida) setDescansoAte(Date.now() + preferencias.descansoSegundos * 1000);
   }
 
   function salvar() {
@@ -84,6 +109,7 @@ export default function ExecutarTreino() {
       },
       {
         onSuccess: () => {
+          descartar(); // virou sessão no banco: o rascunho local não é mais necessário
           if (router.canDismiss()) router.dismissAll();
           router.navigate('/historico');
         },
@@ -99,7 +125,10 @@ export default function ExecutarTreino() {
         confirmar: 'Sair',
         cancelar: 'Continuar treinando',
         destrutivo: true,
-        aoConfirmar: () => router.back(),
+        aoConfirmar: () => {
+          descartar();
+          router.back();
+        },
       });
       return;
     }
@@ -141,7 +170,7 @@ export default function ExecutarTreino() {
         </Pressable>
       </View>
 
-      <EstadoLista carregando={treino.isLoading || (!!t && !series)} erro={treino.error} vazio={false} mensagemVazio="">
+      <EstadoLista carregando={treino.isLoading || !carregado || (!!t && !series)} erro={treino.error} vazio={false} mensagemVazio="">
         {t && atual ? (
           <>
             <View style={{ gap: espaco.sm }}>

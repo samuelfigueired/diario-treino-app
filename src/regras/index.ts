@@ -6,3 +6,5 @@ export * from './execucao';
 export * from './formularioTreino';
 export * from './historico';
 export * from './treinos';
+export * from './preferencias';
+export * from './rascunho';

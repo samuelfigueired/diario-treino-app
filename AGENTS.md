@@ -72,6 +72,8 @@ npm test
   - `src/regras`: regras puras (cargas, volume, datas, histórico, evolução, execução, validação), sempre com teste em `src/regras/__tests__`. Toda conta ou formatação sai das telas e vem para cá.
   - `src/components/ui`: componentes reutilizáveis (`Tela`, `Botao`, `BotaoIcone`, `Campo`, `Cartao`, `Chip`, `Segmentado`, `Indicador`, `Distintivo`, `Icone`, `GraficoLinha`, `EstadoLista`). Use-os antes de criar outros.
   - `src/components/<funcionalidade>` (`treinos`, `execucao`, `historico`): partes de tela específicas de uma funcionalidade (ex.: `FormularioTreino`, `SeletorExercicio`).
+  - `src/contextos`: Context API do estado compartilhado (login, preferências, treino em andamento).
+  - `src/armazenamento`: acesso ao `AsyncStorage` (ler, gravar e apagar JSON com tratamento de falhas).
   - `src/hooks`: hooks de interface sem regra de negócio (ex.: `useAgora` para cronômetros).
   - `src/tema`: cores, espaçamentos e tipografia do protótipo. Não use cor solta no código das telas.
 - Instale dependências com `npx expo install <pacote>` (nunca `npm install <pacote>` direto), para manter as versões compatíveis com o SDK.
@@ -124,6 +126,9 @@ npm test
 - Telas seguem o protótipo do Figma: tema escuro, destaque verde-limão, alvos de toque com pelo menos 44 px.
 - Estado do servidor com TanStack Query (`useQuery`/`useMutation`), com chaves em `src/api/chaves.ts`. Não duplique dados da API em estado local.
 - Token de acesso guardado com `expo-secure-store`, nunca em `AsyncStorage`.
+- `AsyncStorage` (via `src/armazenamento/local.ts`) só para dados do aparelho que não vão para o banco: preferências (descanso entre séries) e o rascunho do treino em andamento. Todo valor lido passa por uma validação de `src/regras` antes de ser usado.
+- Estado compartilhado entre telas com Context API em `src/contextos` (`useAutenticacao`, `usePreferencias`, `useTreinoEmAndamento`). Dados da API continuam no TanStack Query, não em contexto.
+- Listas de tamanho variável com `FlatList` (com `<Tela rolagem={false}>`), nunca `.map()` dentro de `ScrollView`.
 - Todo campo numérico de carga aceita vírgula decimal (`62,5`) e é convertido por função de `src/regras`.
 - Textos de tela em português, sem jargão técnico. Estados de carregando, vazio e erro em toda lista.
 

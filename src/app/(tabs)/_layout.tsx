@@ -1,8 +1,7 @@
 import { Redirect, Tabs } from 'expo-router';
-import { useEffect, useState } from 'react';
 import { View } from 'react-native';
-import { obterToken } from '../../api';
 import { Icone, NomeIcone } from '../../components/ui';
+import { useAutenticacao } from '../../contextos';
 import { cores } from '../../tema';
 
 const ABAS: { nome: string; titulo: string; icone: NomeIcone }[] = [
@@ -14,16 +13,10 @@ const ABAS: { nome: string; titulo: string; icone: NomeIcone }[] = [
 
 /** Abas principais. Sem login salvo, manda para a tela de login. */
 export default function LayoutAbas() {
-  const [logado, setLogado] = useState<boolean | null>(null);
+  const { token, carregando } = useAutenticacao();
 
-  useEffect(() => {
-    obterToken()
-      .then((token) => setLogado(Boolean(token)))
-      .catch(() => setLogado(false));
-  }, []);
-
-  if (logado === null) return <View style={{ flex: 1, backgroundColor: cores.fundo }} />;
-  if (!logado) return <Redirect href="/login" />;
+  if (carregando) return <View style={{ flex: 1, backgroundColor: cores.fundo }} />;
+  if (!token) return <Redirect href="/login" />;
 
   return (
     <Tabs
